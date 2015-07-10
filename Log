@@ -1,0 +1,15 @@
+v1.0: FCIQMC without initiators.
+      Reads in a randomly generated Hamiltonian from file and stores it as a dense matrix.
+      06-01-2015 --- 06-16-2015
+      
+v1.1: FCIQMC with initiators.
+      Reads in a randomly generated Hamiltonian from file and stores it as a sparse matrix in a Python dictionary.
+      06-17-2015 --- 06-26-2015
+      
+v2.0: FCIQMC with initiators.
+      Reads in randomly generated one- and two-particle integrals from file. Does not explicitly form a full Hamiltonian.
+      06-27-2015 --- 07-09-2015
+      
+v2.1: FCIQMC with initiators.
+      Reads a real FCIDUMP file of closed shell N2 molecule.
+      07-10-2015 --- ?
