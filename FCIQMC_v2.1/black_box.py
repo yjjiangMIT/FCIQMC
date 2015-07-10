@@ -1,5 +1,5 @@
-import gen_integrals
-para_list, black_box_one_body, black_box_two_body = gen_integrals.read_outof_file('integrals_m8n6')
+import read_fcidump
+para_list, sym_tuple, black_box_one_body, black_box_two_body = read_fcidump.fcidump()
 
 import gl_consts
 
