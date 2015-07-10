@@ -70,7 +70,7 @@ def write_into_file(bit_num, orb_num, e_num, file_name = 'integrals'):
 	black_box_one_body = gen_spatial_one_body_ints(para_list)
 	black_box_two_body = gen_spatial_two_body_ints(para_list)
 	
-	data_file = open('Documents/FCIQMC_sparse/' + file_name + '.txt', 'w')
+	data_file = open('Documents/FCIQMC/FCIQMC_v2.0/' + file_name + '.txt', 'w')
 	
 	# Writes the parameters.
 	for i in para_list:
@@ -92,7 +92,7 @@ def write_into_file(bit_num, orb_num, e_num, file_name = 'integrals'):
 def read_outof_file(file_name = 'integrals'):
 	"""Reads integrals from a file."""
 	
-	data_file = open('Documents/FCIQMC_sparse/' + file_name + '.txt', 'r')
+	data_file = open('Documents/FCIQMC/FCIQMC_v2.0/' + file_name + '.txt', 'r')
 	
 	# Reads the parameters.
 	line = data_file.readline()
