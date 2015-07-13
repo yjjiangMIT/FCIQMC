@@ -1,14 +1,13 @@
 import det
-import gl_consts
+import ctrl_panel
 import key_ops
 import random
 import black_box
 import math
 
-# Provides all operations on a sparse vector whose entries are $Walker$ objects.
-# Used to deal with a walker distribution.
+# Provides all operations on a sparse vector whose entries are $Det$ objects.
 # It is implemented by Python $dict$ structure, i.e. a Hash table.
-# The keys are Slater determinants, stored in strings.
+# The keys are tuples whose bit representations correspond to orbital occupations.
 
 def merge(dets_p, dets_c):
 	"""Merges $dets_c$ into $dets_p$."""
@@ -20,24 +19,14 @@ def merge(dets_p, dets_c):
 			if dets_p[key].value == 0:
 				del dets_p[key]
 			else:
-				dets_p[key].flag = (abs(dets_p[key].value) >= gl_consts.init_crit_w_num)
+				dets_p[key].flag = (abs(dets_p[key].value) >= ctrl_panel.init_crit_w_num)
 		else:
 			# Parent list does not include this determinant.
 			if dets_c[key].if_survive_as_child():
 				# The merged walker survives if the child meets survival criterions.
 				dets_p[key] = dets_c[key]
 				dets_p[key].set_diag_entry(key)
-				dets_p[key].flag = (abs(dets_p[key].value) >= gl_consts.init_crit_w_num)
-
-def test():
-	dets_p = {}
-	dets_p[(3,3)] = det.Det(5, True)
-	dets_c = {}
-	tau = 0.01
-	key_p = (3,3)
-	dets_spawn(dets_p, dets_c, key_p, tau)
-	return dets_p, dets_c
-	
+				dets_p[key].flag = (abs(dets_p[key].value) >= ctrl_panel.init_crit_w_num)
 
 def spawn(dets_p, dets_c, key_p, tau):
 	"""Spawning of all parents on the determinant indexed by $key_p$."""
@@ -50,14 +39,14 @@ def spawn(dets_p, dets_c, key_p, tau):
 	for count in range(p_u_num):
 		# Single or double excitation.
 		rand_val = random.random()
-		if rand_val < gl_consts.single_prob:
+		if rand_val < ctrl_panel.single_prob:
 			# Single excitation.
 			orbs_p, key_c, sign, p_gen, orbs_diff = key_ops.single_excite(key_p)
-			p_sing_or_doub = gl_consts.single_prob
+			p_sing_or_doub = ctrl_panel.single_prob
 		else:
 			# Double excitation.
 			orbs_p, key_c, sign, p_gen, orbs_diff = key_ops.double_excite(key_p)
-			p_sing_or_doub = 1 - gl_consts.single_prob
+			p_sing_or_doub = 1 - ctrl_panel.single_prob
 		mat_element = black_box.sandwich(orbs_p, orbs_diff)
 		if not sign:
 			# Accounts for a possible negative sign from permuting the spawned determinant.
@@ -95,9 +84,6 @@ def spawn(dets_p, dets_c, key_p, tau):
 	
 def die(dets_p, key_p, tau, shift):
 	"""Dying/cloning of all parents on the determinant indexed by $key$."""
-	
-	import key_ops
-	import random
 	
 	prob = tau * (dets_p[key_p].diag_entry - shift)
 	p_sign = (dets_p[key_p].value > 0)
@@ -163,8 +149,8 @@ def count_u_num(dets):
 def dets_2_vec(dets):
 	"""From a determinant list to a normalized eigenvector."""
 	
-	bit_num = gl_consts.para_list[0]
-	chunk_num = gl_consts.para_list[1]
+	bit_num = black_box.para_list[0]
+	chunk_num = black_box.para_list[1]
 	
 	vec = [0] * (2**bit_num) ** chunk_num
 	norm_sq = 0

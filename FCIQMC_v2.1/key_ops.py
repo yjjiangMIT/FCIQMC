@@ -1,4 +1,4 @@
-import gl_consts
+import black_box
 import random
 import gen_integrals
 # Provides all operations on a key.
@@ -10,8 +10,8 @@ def key_2_orbs(key):
 	
 	# e.g. from (4,8,2) = ((0100)_dec,(1000)_dec,(0010)_dec) to 0100,1000,0010 = (10,7,1).
 	
-	bit_num = gl_consts.para_list[0]
-	chunk_num = gl_consts.para_list[1]
+	bit_num = black_box.para_list[0]
+	chunk_num = black_box.para_list[1]
 	orbs = ()
 	for i in range(len(key)):
 		for j in range(bit_num-1, -1, -1):
@@ -24,8 +24,8 @@ def orbs_2_key(orbs):
 	
 	# e.g. from (10,7,1) = 0100,1000,0010 to ((0100)_dec,(1000)_dec,(0010)_dec) = (4,8,2).
 	
-	bit_num = gl_consts.para_list[0]
-	chunk_num = gl_consts.para_list[1]
+	bit_num = black_box.para_list[0]
+	chunk_num = black_box.para_list[1]
 	key_list = [0] * chunk_num
 	for i in orbs:
 		chunk_index = chunk_num - i/bit_num - 1
@@ -36,9 +36,9 @@ def orbs_2_key(orbs):
 def double_excite(key_gnd):
 	"""Generate a double excitation of the determinant labled by $key_gnd$."""
 	
-	chunk_num = gl_consts.para_list[1]
-	orb_num = gl_consts.para_list[2]
-	e_num = gl_consts.para_list[3]
+	chunk_num = black_box.para_list[1]
+	orb_num = black_box.para_list[2]
+	e_num = black_box.para_list[3]
 	
 	orbs_gnd = key_2_orbs(key_gnd)
 
@@ -53,7 +53,6 @@ def double_excite(key_gnd):
 		pos_mn = (pos_n, pos_m)
 	
 	orb_mn = (orbs_gnd[pos_mn[0]], orbs_gnd[pos_mn[1]])
-	
 	if orb_mn[1] >= orb_num:
 		# Both alpha spins.
 		p_gen_double = 4.0 / (e_num*(e_num-1)*(orb_num-0.5*e_num)*(orb_num-0.5*e_num-1))
@@ -99,9 +98,9 @@ def double_excite(key_gnd):
 def single_excite(key_gnd):
 	"""Generate a single excitation of the determinant labled by $key_gnd$."""
 	
-	chunk_num = gl_consts.para_list[1]
-	orb_num = gl_consts.para_list[2]
-	e_num = gl_consts.para_list[3]
+	chunk_num = black_box.para_list[1]
+	orb_num = black_box.para_list[2]
+	e_num = black_box.para_list[3]
 	
 	orbs_gnd = key_2_orbs(key_gnd)
 	
@@ -159,7 +158,6 @@ def cal_sign(orbs, pos_wrong):
 		pos_p, pos_q = pos_wrong
 		orb_p = orbs[pos_p]
 		orb_q = orbs[pos_q]
-		
 		for pos in range(pos_p-1, -1, -1):
 			if orbs[pos] < orb_p:
 				rev_num += 1
@@ -168,27 +166,26 @@ def cal_sign(orbs, pos_wrong):
 		for i in orbs[pos_p+1 : ]:
 			if i > orb_p:
 				rev_num += 1
-			else:
+			elif i != orb_q:
 				break
 		for pos in range(pos_q-1, -1, -1):
 			if orbs[pos] < orb_q:
 				rev_num += 1
-			else:
+			elif orbs[pos] != orb_p:
 				break
 		for i in orbs[pos_q+1 : ]:
 			if i > orb_q:
 				rev_num += 1
 			else:
 				break
-	
 	return (rev_num % 2 == 0)
 
 def difference(key_gnd, key_exc):
 	"""Calculate the difference between $key_gnd$ and $key_exc$."""
 	
 	# Returns the sign of excitation as well as the difference for matrix element calculation.
-	bit_num = gl_consts.para_list[0]
-	chunk_num = gl_consts.para_list[1]
+	bit_num = black_box.para_list[0]
+	chunk_num = black_box.para_list[1]
 	
 	orb_mn = ()
 	orb_pq = ()
@@ -218,7 +215,6 @@ def difference(key_gnd, key_exc):
 	for i in range(int(count)):
 		orbs_exc_list[pos_wrong[i]] = orb_pq[i]
 	orbs_exc = tuple(orbs_exc_list)
-	
 	sign_exc = cal_sign(orbs_exc, pos_wrong)
 	
 	return orbs_gnd, sign_exc, orbs_diff

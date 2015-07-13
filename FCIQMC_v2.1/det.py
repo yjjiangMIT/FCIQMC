@@ -19,4 +19,4 @@ class Det:
 	def set_diag_entry(self, key):
 		"""Sets diagonal matrix element of this determinant."""
 		orbs = key_ops.key_2_orbs(key)
-		self.diag_entry = black_box.sandwich(orbs, ())
+		self.diag_entry = black_box.sandwich(orbs, ()) - black_box.ref_energy

@@ -1,15 +1,14 @@
 import read_fcidump
-para_list, sym_tuple, black_box_one_body, black_box_two_body = read_fcidump.fcidump()
 
-import gl_consts
+para_list, sym_tuple, black_box_one_body, black_box_two_body = read_fcidump.fcidump()
+ref_energy = 0
 
 def spatial_one_body_int(orb_i, orb_j):
 	"""Calculates spatial one-body integral (i|h|j)."""
 	
-	if orb_i <= orb_j:
-		key = (orb_i, orb_j)
-	else:
-		key = (orb_j, orb_i)
+	# $orb_i$ and $orb_j$ do not need to be ordered at input.
+	# This piece of code sorts them in reverse order.
+	key = sort_2_tuple((orb_i, orb_j))
 	if key in black_box_one_body:
 		return black_box_one_body[key]
 	else:
@@ -18,9 +17,12 @@ def spatial_one_body_int(orb_i, orb_j):
 def spatial_two_body_int(orb_ij, orb_kl):
 	"""Calculates spatial two-body integral (ij|kl)."""
 	
+	# $orb_ij$ and $orb_kl$ do not need to be ordered at input.
+	# This piece of code sorts them in reverse order.
+	
 	orb_ij = sort_2_tuple(orb_ij)
 	orb_kl = sort_2_tuple(orb_kl)
-	if cmp(orb_ij, orb_kl) <= 0:
+	if cmp(orb_ij, orb_kl) >= 0:
 		key = orb_ij + orb_kl
 	else:
 		key = orb_kl + orb_ij
@@ -30,10 +32,10 @@ def spatial_two_body_int(orb_ij, orb_kl):
 		return 0
 
 def sort_2_tuple(orb_ij):
-	"""Sort $orb_ij$."""
+	"""Sorts $orb_ij$ in reverse order."""
 	
 	orb_i, orb_j = orb_ij
-	if orb_i > orb_j:
+	if orb_i < orb_j:
 		orb_ij = (orb_j, orb_i)
 	return orb_ij
 
@@ -41,8 +43,8 @@ def det_one_body_int(orbs_gnd, orbs_diff):
 	"""Calculates determinantal one-body integral <Psi|O1|Psi> or <Psi|O1|Psi_m^p>."""
 	
 	# |Psi_m^p> may differ from the basis by a sign, which must be added outside this method.
-	orb_num = gl_consts.para_list[2]
-	e_num = gl_consts.para_list[3]
+	orb_num = para_list[2]
+	e_num = para_list[3]
 	
 	if len(orbs_diff) == 2:
 		# Single excitation.
@@ -61,11 +63,11 @@ def det_one_body_int(orbs_gnd, orbs_diff):
 		# <K|O1|K> = sum_(m_a)^(N/2)(m_a|h|m_a) + sum_(m_b)^(N/2)(m_b|h|m_b).
 		result = 0
 		for orb in orbs_gnd[ : e_num/2]:
-			# m and p are alpha spins.
+			# m is an alpha spin.
 			orb_m = orb - orb_num
 			result += spatial_one_body_int(orb_m, orb_m)
 		for orb_m in orbs_gnd[e_num/2 : ]:
-			# m and p are beta spins.
+			# m is a beta spin.
 			result += spatial_one_body_int(orb_m, orb_m)
 		return result
 		
@@ -77,8 +79,8 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 	"""Calculates determinantal two-body integral <Psi|O2|Psi> or <Psi|O2|Psi_m^p> or <Psi|O2|Psi_mn^pq>."""
 	
 	# |Psi_m^p> or |Psi_mn^pq> may differ from the basis by a sign, which must be added outside this method.
-	orb_num = gl_consts.para_list[2]
-	e_num = gl_consts.para_list[3]
+	orb_num = para_list[2]
+	e_num = para_list[3]
 	
 	if len(orbs_diff) == 4:
 		# Double excitation.

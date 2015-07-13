@@ -65,3 +65,10 @@ def fcidump(file_name = 'FCIDUMP_00031788'):
 	f.close()
 	
 	return para_list, sym_tuple, black_box_one_body, black_box_two_body
+
+def disp_ints(black_box):
+	"""Print $black_box$ to screen."""
+	
+	for key in black_box:
+		print key,
+		print black_box[key]
