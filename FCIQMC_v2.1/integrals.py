@@ -1,14 +1,14 @@
 import read_fcidump
 
+# Reads in parameters, symmetry, and integrals.
 para_list, sym_tuple, black_box_one_body, black_box_two_body = read_fcidump.fcidump()
-ref_energy = 0
+ref_energy = 0 # Reference energy will be set to the correct value in ctrl_panel.py.
 
 def spatial_one_body_int(orb_i, orb_j):
 	"""Calculates spatial one-body integral (i|h|j)."""
 	
-	# $orb_i$ and $orb_j$ do not need to be ordered at input.
-	# This piece of code sorts them in reverse order.
-	key = sort_2_tuple((orb_i, orb_j))
+	# (i,j) do not need to be ordered at input.
+	key = sort_2_tuple((orb_i, orb_j)) # Sorts (i,j) in reverse order.
 	if key in black_box_one_body:
 		return black_box_one_body[key]
 	else:
@@ -17,11 +17,10 @@ def spatial_one_body_int(orb_i, orb_j):
 def spatial_two_body_int(orb_ij, orb_kl):
 	"""Calculates spatial two-body integral (ij|kl)."""
 	
-	# $orb_ij$ and $orb_kl$ do not need to be ordered at input.
-	# This piece of code sorts them in reverse order.
-	
-	orb_ij = sort_2_tuple(orb_ij)
-	orb_kl = sort_2_tuple(orb_kl)
+	# (i,j) and (k,l) do not need to be ordered at input.
+	orb_ij = sort_2_tuple(orb_ij) # Sorts (i,j) in reverse order.
+	orb_kl = sort_2_tuple(orb_kl) # Sorts (k,l) in reverse order.
+	# Sort such that (i,j) > (k,l).
 	if cmp(orb_ij, orb_kl) >= 0:
 		key = orb_ij + orb_kl
 	else:
@@ -32,7 +31,7 @@ def spatial_two_body_int(orb_ij, orb_kl):
 		return 0
 
 def sort_2_tuple(orb_ij):
-	"""Sorts $orb_ij$ in reverse order."""
+	"""Sorts (i,j) in reverse order."""
 	
 	orb_i, orb_j = orb_ij
 	if orb_i < orb_j:
@@ -91,7 +90,7 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 		orb_m, orb_n, orb_p, orb_q = orbs_diff
 		if orb_n >= orb_num:
 			# m and n are both alpha spins.
-			orb_m -= orb_num
+			orb_m -= orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 			orb_n -= orb_num
 			orb_p -= orb_num
 			orb_q -= orb_num
@@ -103,7 +102,7 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 				spatial_two_body_int((orb_m,orb_q), (orb_n,orb_p))
 		else:
 			# m is an alpha spin and n is a beta spin.
-			orb_m -= orb_num
+			orb_m -= orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 			orb_p -= orb_num
 			return spatial_two_body_int((orb_m,orb_p), (orb_n,orb_q))
 		
@@ -117,11 +116,11 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 		orb_m, orb_p = orbs_diff
 		if orb_m >= orb_num:
 			# Differ in an alpha spin.
-			orb_m -= orb_num
+			orb_m -= orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 			orb_p -= orb_num
 			for orb in orbs_gnd[ : e_num/2]:
 				# n is an alpha spin.
-				orb_n = orb - orb_num
+				orb_n = orb - orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 				result += spatial_two_body_int((orb_m,orb_p), (orb_n,orb_n))
 				result -= spatial_two_body_int((orb_m,orb_n), (orb_n,orb_p))
 			for orb_n in orbs_gnd[e_num/2 : ]:
@@ -131,7 +130,7 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 			# Differ in a beta spin.
 			for orb in orbs_gnd[ : e_num/2]:
 				# n is an alpha spin.
-				orb_n = orb - orb_num
+				orb_n = orb - orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 				result += spatial_two_body_int((orb_m,orb_p), (orb_n,orb_n))
 			for orb_n in orbs_gnd[e_num/2 : ]:
 				# n is a beta spin.
@@ -147,10 +146,10 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 		result = 0
 		for orb_1 in orbs_gnd[ : e_num/2]:
 			# m is an alpha spin.
-			orb_m = orb_1 - orb_num
+			orb_m = orb_1 - orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 			for orb_2 in orbs_gnd[ : e_num/2]:
 				# n is an alpha spin.
-				orb_n = orb_2 - orb_num
+				orb_n = orb_2 - orb_num # Gets the label of spatial orbital from the label of alpha spin orbital.
 				result += 0.5 * spatial_two_body_int((orb_m,orb_m), (orb_n,orb_n))
 				result -= 0.5 * spatial_two_body_int((orb_m,orb_n), (orb_n,orb_m))
 			for orb_n in orbs_gnd[e_num/2 : ]:
@@ -169,5 +168,7 @@ def det_two_body_int(orbs_gnd, orbs_diff):
 		return 0
 
 def sandwich(orbs_gnd, orbs_diff):
+	"""Calculates the matrix element between orbs_gnd and an excited state that differs in orb_diff."""
+	
 	return det_one_body_int(orbs_gnd, orbs_diff) + \
 		det_two_body_int(orbs_gnd, orbs_diff)

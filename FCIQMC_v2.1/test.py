@@ -1,37 +1,46 @@
 import det
 import key_ops
 import det_ops
-import black_box
+import integrals
 
-def gen_matrix():
-	"""Creates a MATLAB file of the full Hamiltonian as a sparse matrix."""
+def gen_key_list():
+	"""Creates keys of all the determinants."""
+	
+	orb_num = integrals.para_list[2]
+	e_num = integrals.para_list[3]
 	
 	dets_p = {}
 	dets_c = {}
-	
 	spatial_orbs_list = []
 	key_list = []
 	
-	for i in range(0, 8):
-		for j in range(i+1, 8):
-			for k in range(j+1, 8):
-				for l in range(k+1, 8):
-					for m in range(l+1, 8):
-						spatial_orbs_list.append([m, l, k, j, i])
+	# Creates all spatial orbital occupations.
+	add_digit(0, orb_num, e_num/2, [], spatial_orbs_list)
+	
 	for sp_orbs_i in spatial_orbs_list:
 		for sp_orbs_j in spatial_orbs_list:
-			sp_orbs_temp = sp_orbs_j[:]
-			for k in range(5):
-				sp_orbs_temp[k] += 8
-			orbs = tuple(sp_orbs_temp + sp_orbs_i)
-			key = key_ops.orbs_2_key(orbs)
-			key_list.append(key)
-	for key in key_list:
-		dets_c[key] = det.Det(1, True)
+			sym = 0
+			for orb_i in sp_orbs_i:
+				sym ^= integrals.sym_tuple[orb_i]
+			for orb_j in sp_orbs_j:
+				sym ^= integrals.sym_tuple[orb_j]
+			if sym == 0:
+				# Only picks out those determinants with the correct symmetry.
+				sp_orbs_temp = sp_orbs_j[:]
+				for k in range(e_num/2):
+					sp_orbs_temp[k] += orb_num
+				orbs = tuple(sp_orbs_temp + sp_orbs_i) # Creates all spin orbital occupations.
+				key = key_ops.orbs_2_key(orbs)
+				key_list.append(key)
 	
-	det_ops.merge(dets_p, dets_c)
+	return key_list
+
+def write_mat_2_file(file_name = 'Hamiltonian_N2.m'):
+	"""Writes the full Hamiltonian as well as some MATLAB codes into a .m file."""
 	
-	f = open('Hamiltonian_N2.m', 'w')
+	key_list = gen_key_list()
+	
+	f = open(file_name, 'w')
 	f.write('data = [')
 	for i in range(len(key_list)):
 		key_i = key_list[i]
@@ -39,7 +48,7 @@ def gen_matrix():
 			key_j = key_list[j]
 			orbs_i, sign, orbs_diff = key_ops.difference(key_i, key_j)
 			if orbs_i != None:
-				entry = black_box.sandwich(orbs_i, orbs_diff)
+				entry = integrals.sandwich(orbs_i, orbs_diff)
 				if entry == 0:
 					continue
 				elif not sign:
@@ -53,5 +62,13 @@ def gen_matrix():
 	f.write('];\r\ndata = reshape(data, 3, length(data)/3);\r\ni = data(1,:);\r\nj = data(2,:);\r\n')
 	f.write('s = data(3,:);\r\nH = sparse(i,j,s);\r\neig_vals = eigs(H);\r\ngnd = min(eig_vals);')
 	f.close()
+
+def add_digit(range_start, range_end, max_len, list_last_level, list_ensemble):
+	"""Recursively build up all the lists of spatial orbital occupations."""
 	
-	return dets_p
+	if len(list_last_level) == max_len:
+		list_ensemble.append(list_last_level)
+	else:
+		for i in range(range_start, range_end):
+			list_this_level = [i] + list_last_level
+			add_digit(i+1, range_end, max_len, list_this_level, list_ensemble)

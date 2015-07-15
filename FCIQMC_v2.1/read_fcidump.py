@@ -2,7 +2,7 @@ import os
 import math
 
 def fcidump(file_name = 'FCIDUMP_00031788'):
-	'''Load one- and two-particle integrals from FCIDUMP file.'''
+	"""Load one- and two-particle integrals from FCIDUMP file."""
 	
 	# Opens FCIDUMP file.
 	dir_name = '/home/jiang/Documents/FCIQMC/FCIQMC_v2.1/'
@@ -67,7 +67,7 @@ def fcidump(file_name = 'FCIDUMP_00031788'):
 	return para_list, sym_tuple, black_box_one_body, black_box_two_body
 
 def disp_ints(black_box):
-	"""Print $black_box$ to screen."""
+	"""Print black_box to screen."""
 	
 	for key in black_box:
 		print key,
