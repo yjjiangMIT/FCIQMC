@@ -12,4 +12,4 @@ v2.0: FCIQMC with initiators.
       
 v2.1: FCIQMC with initiators.
       Reads a real FCIDUMP file of closed shell N2 molecule.
-      07-10-2015 --- ?
+      07-10-2015 --- 07-14-2015
